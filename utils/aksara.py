@@ -317,8 +317,14 @@ def restart_supervisor_processes(aksara_path=".", web_workers=False):
         # backward compatibility
         else:
             group = "logica:"
+            sudo = "sudo "
 
-        aksara.run(f"{sudo}supervisorctl restart {group}")
+        if group == "logica:":
+            log("restarting supervisor failed. Use bench restart to retry.", level=3)
+        else:
+            aksara.run(f"{sudo}supervisorctl restart {group}")
+        # failure = aksara.run(f"{sudo}supervisorctl restart {group}", _raise=False)
+        # if failure:
 
 
 def restart_systemd_processes(aksara_path=".", web_workers=False):
