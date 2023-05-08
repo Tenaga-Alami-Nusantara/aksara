@@ -1,0 +1,10 @@
+aksara.patches.v3.deprecate_old_config
+aksara.patches.v3.celery_to_rq
+aksara.patches.v3.redis_bind_ip
+aksara.patches.v4.update_node
+aksara.patches.v4.update_socketio
+aksara.patches.v4.install_yarn #2
+aksara.patches.v5.fix_user_permissions
+aksara.patches.v5.fix_backup_cronjob
+aksara.patches.v5.set_live_reload_config
+aksara.patches.v5.update_archived_sites

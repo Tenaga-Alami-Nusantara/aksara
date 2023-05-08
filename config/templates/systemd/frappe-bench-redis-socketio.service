@@ -1,0 +1,12 @@
+[Unit]
+Description="{{ aksara_name }}-redis-socketio"
+PartOf={{ aksara_name }}-redis.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ redis_server }} {{ redis_socketio_config }}
+StandardOutput=file:{{ aksara_dir }}/logs/redis-socketio.log
+StandardError=file:{{ aksara_dir }}/logs/redis-socketio.error.log
+WorkingDirectory={{ sites_dir }}

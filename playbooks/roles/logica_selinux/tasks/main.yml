@@ -1,0 +1,24 @@
+---
+- name: Install deps
+  yum:
+    name:
+      - policycoreutils-python
+      - selinux-policy-devel
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: Check enabled SELinux modules
+  shell: semanage module -l
+  register: enabled_modules
+  when: ansible_distribution == 'CentOS'
+
+- name: Copy logica_selinux policy
+  copy: src=logica_selinux.te dest=/root/logica_selinux.te
+  register: dest_logica_selinux_te
+  when: ansible_distribution == 'CentOS'
+
+- name: Compile logica_selinux policy
+  shell: "make -f /usr/share/selinux/devel/Makefile logica_selinux.pp && semodule -i logica_selinux.pp"
+  args:
+    chdir: /root/
+  when: "ansible_distribution == 'CentOS' and enabled_modules.stdout.find('logica_selinux') == -1 or dest_logica_selinux_te.changed"

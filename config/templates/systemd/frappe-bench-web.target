@@ -1,0 +1,6 @@
+[Unit]
+After=network.target
+Wants={{ aksara_name }}-frappe-web.service {{ aksara_name }}-node-socketio.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+After={{ aksara_name }}-frappe-web.service
+Description="{{ aksara_name }}-node-socketio"
+PartOf={{ aksara_name }}-web.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ node }} {{ aksara_dir }}/apps/logica/socketio.js
+StandardOutput=file:{{ aksara_dir }}/logs/node-socketio.log
+StandardError=file:{{ aksara_dir }}/logs/node-socketio.error.log
+WorkingDirectory={{ aksara_dir }}

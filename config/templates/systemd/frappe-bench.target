@@ -1,0 +1,6 @@
+[Unit]
+After=network.target
+Requires={{ aksara_name }}-web.target {{ aksara_name }}-workers.target {{ aksara_name }}-redis.target
+
+[Install]
+WantedBy=multi-user.target

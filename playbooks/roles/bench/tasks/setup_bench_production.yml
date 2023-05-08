@@ -1,0 +1,27 @@
+---
+- name: Setup production
+  become: yes
+  become_user: root
+  command: bench setup production {{ logica_user }} --yes
+  args:
+    chdir: "{{ aksara_path }}"
+
+- name: Setup Sudoers
+  become: yes
+  become_user: root
+  command: bench setup sudoers {{ logica_user }}
+  args:
+    chdir: "{{ aksara_path }}"
+
+- name: Set correct permissions on aksara.log
+  file:
+    path: "{{ aksara_path }}/logs/aksara.log"
+    owner: "{{ logica_user }}"
+    group: "{{ logica_user }}"
+  become: yes
+  become_user: root
+
+- name: Restart the bench
+  command: bench restart
+  args:
+    chdir: "{{ aksara_path }}"

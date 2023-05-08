@@ -1,0 +1,27 @@
+---
+- hosts: localhost
+  become: yes
+  become_user: root
+  tasks:
+    - name: Create user
+      user:
+        name: "{{ logica_user }}"
+        generate_ssh_key: yes
+
+    - name: Set home folder perms
+      file:
+        path: "{{ user_directory }}"
+        mode: "o+rx"
+        owner: "{{ logica_user }}"
+        group: "{{ logica_user }}"
+        recurse: yes
+
+    - name: Set /tmp/.bench folder perms
+      file:
+        path: "{{ repo_path }}"
+        owner: "{{ logica_user }}"
+        group: "{{ logica_user }}"
+        recurse: yes
+
+    - name: Change default shell to bash
+      shell: "chsh {{ logica_user }} -s $(which bash)"

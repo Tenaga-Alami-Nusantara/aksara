@@ -1,0 +1,12 @@
+[Unit]
+Description="{{ aksara_name }}-redis-queue"
+PartOf={{ aksara_name }}-redis.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ redis_server }} {{ redis_queue_config }}
+StandardOutput=file:{{ aksara_dir }}/logs/redis-queue.log
+StandardError=file:{{ aksara_dir }}/logs/redis-queue.error.log
+WorkingDirectory={{ sites_dir }}

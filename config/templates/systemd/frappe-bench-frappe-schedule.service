@@ -1,0 +1,12 @@
+[Unit]
+Description="{{ aksara_name }}-frappe-schedule"
+PartOf={{ aksara_name }}-workers.target
+
+[Service]
+User={{ user }}
+Group={{ user }}
+Restart=always
+ExecStart={{ aksara_cmd }} schedule
+StandardOutput=file:{{ aksara_dir }}/logs/schedule.log
+StandardError=file:{{ aksara_dir }}/logs/schedule.error.log
+WorkingDirectory={{ aksara_dir }}
