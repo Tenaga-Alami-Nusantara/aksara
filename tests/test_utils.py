@@ -45,13 +45,13 @@ class TestUtils(unittest.TestCase):
         )
 
     def test_app_states(self):
-        bench_dir = "./sandbox"
-        sites_dir = os.path.join(bench_dir, "sites")
+        aksara_dir = "./sandbox"
+        sites_dir = os.path.join(aksara_dir, "sites")
 
         if not os.path.exists(sites_dir):
             os.makedirs(sites_dir)
 
-        fake_bench = Aksara(bench_dir)
+        fake_bench = Aksara(aksara_dir)
 
         self.assertTrue(hasattr(fake_aksara.apps, "states"))
 
@@ -65,7 +65,7 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual(fake_aksara.apps.states, {})
 
-        logica_path = os.path.join(bench_dir, "apps", "logica")
+        logica_path = os.path.join(aksara_dir, "apps", "logica")
 
         os.makedirs(os.path.join(logica_path, "logica"))
 
@@ -104,7 +104,7 @@ class TestUtils(unittest.TestCase):
         self.assertIn("version", fake_aksara.apps.states["logica"])
         self.assertEqual("11.0", fake_aksara.apps.states["logica"]["version"])
 
-        shutil.rmtree(bench_dir)
+        shutil.rmtree(aksara_dir)
 
     def test_ssh_ports(self):
         app = App("git@github.com:22:frappe/frappe")

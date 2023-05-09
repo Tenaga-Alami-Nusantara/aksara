@@ -100,4 +100,4 @@ def switch_to_develop(upgrade=False):
     "Switch frappe and erpnext to develop branch"
     from aksara.utils.app import switch_to_develop
 
-    switch_to_develop(apps=["logica", "erpnext"])
+    switch_to_develop(apps=["logica", "logica_erp"])

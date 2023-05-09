@@ -17,20 +17,20 @@ class TestSetupProduction(TestBenchBase):
     def test_setup_production(self):
         user = getpass.getuser()
 
-        for bench_name in ("test-bench-1", "test-bench-2"):
-            aksara_path = os.path.join(os.path.abspath(self.benches_path), bench_name)
-            self.init_bench(bench_name)
+        for aksara_name in ("test-bench-1", "test-bench-2"):
+            aksara_path = os.path.join(os.path.abspath(self.benches_path), aksara_name)
+            self.init_bench(aksara_name)
             exec_cmd(f"sudo bench setup production {user} --yes", cwd=aksara_path)
-            self.assert_nginx_config(bench_name)
-            self.assert_supervisor_config(bench_name)
-            self.assert_supervisor_process(bench_name)
+            self.assert_nginx_config(aksara_name)
+            self.assert_supervisor_config(aksara_name)
+            self.assert_supervisor_process(aksara_name)
 
         self.assert_nginx_process()
         exec_cmd(f"sudo bench setup sudoers {user}")
         self.assert_sudoers(user)
 
-        for bench_name in self.benches:
-            aksara_path = os.path.join(os.path.abspath(self.benches_path), bench_name)
+        for aksara_name in self.benches:
+            aksara_path = os.path.join(os.path.abspath(self.benches_path), aksara_name)
             exec_cmd("sudo bench disable-production", cwd=aksara_path)
 
     def production(self):
@@ -39,11 +39,11 @@ class TestSetupProduction(TestBenchBase):
         except Exception:
             print(self.get_traceback())
 
-    def assert_nginx_config(self, bench_name):
+    def assert_nginx_config(self, aksara_name):
         conf_src = os.path.join(
-            os.path.abspath(self.benches_path), bench_name, "config", "nginx.conf"
+            os.path.abspath(self.benches_path), aksara_name, "config", "nginx.conf"
         )
-        conf_dest = f"/etc/nginx/conf.d/{bench_name}.conf"
+        conf_dest = f"/etc/nginx/conf.d/{aksara_name}.conf"
 
         self.assertTrue(self.file_exists(conf_src))
         self.assertTrue(self.file_exists(conf_dest))
@@ -56,8 +56,8 @@ class TestSetupProduction(TestBenchBase):
             f = f.read()
 
             for key in (
-                f"upstream {bench_name}-frappe",
-                f"upstream {bench_name}-socketio-server",
+                f"upstream {aksara_name}-frappe",
+                f"upstream {aksara_name}-socketio-server",
             ):
                 self.assertTrue(key in f)
 
@@ -83,13 +83,13 @@ class TestSetupProduction(TestBenchBase):
         self.assertTrue(f"{user} ALL = (root) NOPASSWD: {service} nginx *" in sudoers)
         self.assertTrue(f"{user} ALL = (root) NOPASSWD: {nginx}" in sudoers)
 
-    def assert_supervisor_config(self, bench_name, use_rq=True):
+    def assert_supervisor_config(self, aksara_name, use_rq=True):
         conf_src = os.path.join(
-            os.path.abspath(self.benches_path), bench_name, "config", "supervisor.conf"
+            os.path.abspath(self.benches_path), aksara_name, "config", "supervisor.conf"
         )
 
         supervisor_conf_dir = get_supervisor_confdir()
-        conf_dest = f"{supervisor_conf_dir}/{bench_name}.conf"
+        conf_dest = f"{supervisor_conf_dir}/{aksara_name}.conf"
 
         self.assertTrue(self.file_exists(conf_src))
         self.assertTrue(self.file_exists(conf_dest))
@@ -102,35 +102,35 @@ class TestSetupProduction(TestBenchBase):
             f = f.read()
 
             tests = [
-                f"program:{bench_name}-frappe-web",
-                f"program:{bench_name}-redis-cache",
-                f"program:{bench_name}-redis-queue",
-                f"program:{bench_name}-redis-socketio",
-                f"group:{bench_name}-web",
-                f"group:{bench_name}-workers",
-                f"group:{bench_name}-redis",
+                f"program:{aksara_name}-frappe-web",
+                f"program:{aksara_name}-redis-cache",
+                f"program:{aksara_name}-redis-queue",
+                f"program:{aksara_name}-redis-socketio",
+                f"group:{aksara_name}-web",
+                f"group:{aksara_name}-workers",
+                f"group:{aksara_name}-redis",
             ]
 
             if not os.environ.get("CI"):
-                tests.append(f"program:{bench_name}-node-socketio")
+                tests.append(f"program:{aksara_name}-node-socketio")
 
             if use_rq:
                 tests.extend(
                     [
-                        f"program:{bench_name}-frappe-schedule",
-                        f"program:{bench_name}-frappe-default-worker",
-                        f"program:{bench_name}-frappe-short-worker",
-                        f"program:{bench_name}-frappe-long-worker",
+                        f"program:{aksara_name}-frappe-schedule",
+                        f"program:{aksara_name}-frappe-default-worker",
+                        f"program:{aksara_name}-frappe-short-worker",
+                        f"program:{aksara_name}-frappe-long-worker",
                     ]
                 )
 
             else:
                 tests.extend(
                     [
-                        f"program:{bench_name}-frappe-workerbeat",
-                        f"program:{bench_name}-frappe-worker",
-                        f"program:{bench_name}-frappe-longjob-worker",
-                        f"program:{bench_name}-frappe-async-worker",
+                        f"program:{aksara_name}-frappe-workerbeat",
+                        f"program:{aksara_name}-frappe-worker",
+                        f"program:{aksara_name}-frappe-longjob-worker",
+                        f"program:{aksara_name}-frappe-async-worker",
                     ]
                 )
 
@@ -138,7 +138,7 @@ class TestSetupProduction(TestBenchBase):
                 self.assertTrue(key in f)
 
     def assert_supervisor_process(
-        self, bench_name, use_rq=True, disable_production=False
+        self, aksara_name, use_rq=True, disable_production=False
     ):
         out = get_cmd_output("supervisorctl status")
 
@@ -148,32 +148,32 @@ class TestSetupProduction(TestBenchBase):
             out = get_cmd_output("supervisorctl status")
 
         tests = [
-            r"{bench_name}-web:{bench_name}-frappe-web[\s]+RUNNING",
+            r"{aksara_name}-web:{aksara_name}-frappe-web[\s]+RUNNING",
             # Have commented for the time being. Needs to be uncommented later on. Bench is failing on travis because of this.
             # It works on one bench and fails on another.giving FATAL or BACKOFF (Exited too quickly (process log may have details))
-            # "{bench_name}-web:{bench_name}-node-socketio[\s]+RUNNING",
-            r"{bench_name}-redis:{bench_name}-redis-cache[\s]+RUNNING",
-            r"{bench_name}-redis:{bench_name}-redis-queue[\s]+RUNNING",
-            r"{bench_name}-redis:{bench_name}-redis-socketio[\s]+RUNNING",
+            # "{aksara_name}-web:{aksara_name}-node-socketio[\s]+RUNNING",
+            r"{aksara_name}-redis:{aksara_name}-redis-cache[\s]+RUNNING",
+            r"{aksara_name}-redis:{aksara_name}-redis-queue[\s]+RUNNING",
+            r"{aksara_name}-redis:{aksara_name}-redis-socketio[\s]+RUNNING",
         ]
 
         if use_rq:
             tests.extend(
                 [
-                    r"{bench_name}-workers:{bench_name}-frappe-schedule[\s]+RUNNING",
-                    r"{bench_name}-workers:{bench_name}-frappe-default-worker-0[\s]+RUNNING",
-                    r"{bench_name}-workers:{bench_name}-frappe-short-worker-0[\s]+RUNNING",
-                    r"{bench_name}-workers:{bench_name}-frappe-long-worker-0[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-schedule[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-default-worker-0[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-short-worker-0[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-long-worker-0[\s]+RUNNING",
                 ]
             )
 
         else:
             tests.extend(
                 [
-                    r"{bench_name}-workers:{bench_name}-frappe-workerbeat[\s]+RUNNING",
-                    r"{bench_name}-workers:{bench_name}-frappe-worker[\s]+RUNNING",
-                    r"{bench_name}-workers:{bench_name}-frappe-longjob-worker[\s]+RUNNING",
-                    r"{bench_name}-workers:{bench_name}-frappe-async-worker[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-workerbeat[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-worker[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-longjob-worker[\s]+RUNNING",
+                    r"{aksara_name}-workers:{aksara_name}-frappe-async-worker[\s]+RUNNING",
                 ]
             )
 

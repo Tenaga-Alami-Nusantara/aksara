@@ -41,7 +41,7 @@
   hosts: localhost
   vars:
     bench_repo_path: "{{ user_directory }}/.bench"
-    aksara_path: "{{ user_directory }}/{{ bench_name }}"
+    aksara_path: "{{ user_directory }}/{{ aksara_name }}"
   roles:
     # setup frappe-bench
     - {

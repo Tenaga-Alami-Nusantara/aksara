@@ -24,17 +24,17 @@ class TestBenchInit(TestBenchBase):
     def test_utils(self):
         self.assertEqual(subprocess.call("aksara"), 0)
 
-    def test_init(self, bench_name="test-bench", **kwargs):
-        self.init_bench(bench_name, **kwargs)
+    def test_init(self, aksara_name="test-bench", **kwargs):
+        self.init_bench(aksara_name, **kwargs)
         app = App("file:///tmp/frappe")
         self.assertTupleEqual(
             (app.mount_path, app.url, app.repo, app.org),
             ("/tmp/frappe", "file:///tmp/frappe", "logica", "logica"),
         )
-        self.assert_folders(bench_name)
-        self.assert_virtual_env(bench_name)
-        self.assert_config(bench_name)
-        test_bench = Aksara(bench_name)
+        self.assert_folders(aksara_name)
+        self.assert_virtual_env(aksara_name)
+        self.assert_config(aksara_name)
+        test_bench = Aksara(aksara_name)
         app = App("logica", bench=test_bench)
         self.assertEqual(app.from_apps, True)
 
@@ -45,8 +45,8 @@ class TestBenchInit(TestBenchBase):
             print(self.get_traceback())
 
     def test_multiple_benches(self):
-        for bench_name in ("test-bench-1", "test-bench-2"):
-            self.init_bench(bench_name)
+        for aksara_name in ("test-bench-1", "test-bench-2"):
+            self.init_bench(aksara_name)
 
         self.assert_common_site_config(
             "test-bench-1",
@@ -73,14 +73,14 @@ class TestBenchInit(TestBenchBase):
         )
 
     def test_new_site(self):
-        bench_name = "test-bench"
+        aksara_name = "test-bench"
         site_name = "test-site.local"
-        aksara_path = os.path.join(self.benches_path, bench_name)
+        aksara_path = os.path.join(self.benches_path, aksara_name)
         site_path = os.path.join(aksara_path, "sites", site_name)
         site_config_path = os.path.join(site_path, "site_config.json")
 
-        self.init_bench(bench_name)
-        self.new_site(site_name, bench_name)
+        self.init_bench(aksara_name)
+        self.new_site(site_name, aksara_name)
 
         self.assertTrue(os.path.exists(site_path))
         self.assertTrue(os.path.exists(os.path.join(site_path, "private", "backups")))
@@ -127,11 +127,11 @@ class TestBenchInit(TestBenchBase):
         self.assertTrue(FRAPPE_APP in states)
 
     def test_install_app(self):
-        bench_name = "test-bench"
+        aksara_name = "test-bench"
         site_name = "install-app.test"
         aksara_path = os.path.join(self.benches_path, "test-bench")
 
-        self.init_bench(bench_name)
+        self.init_bench(aksara_name)
         exec_cmd(
             f"bench get-app {TEST_FRAPPE_APP} --branch master --skip-assets",
             cwd=aksara_path,
@@ -148,7 +148,7 @@ class TestBenchInit(TestBenchBase):
         self.assertTrue(app_installed_in_env)
 
         # create and install app on site
-        self.new_site(site_name, bench_name)
+        self.new_site(site_name, aksara_name)
         installed_app = not exec_cmd(
             f"bench --site {site_name} install-app {TEST_FRAPPE_APP}",
             cwd=aksara_path,

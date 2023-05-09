@@ -16,7 +16,7 @@ import click
 # imports - module imports
 import aksara
 from aksara.exceptions import PatchError, ValidationError
-from aksara.utils import exec_cmd, get_bench_name, get_cmd_output, log, which
+from aksara.utils import exec_cmd, get_aksara_name, get_cmd_output, log, which
 
 logger = logging.getLogger(aksara.PROJECT_NAME)
 
@@ -286,7 +286,7 @@ def restart_supervisor_processes(aksara_path=".", web_workers=False):
     aksara = Aksara(aksara_path)
     conf = aksara.conf
     cmd = conf.get("supervisor_restart_cmd")
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
 
     if cmd:
         aksara.run(cmd)
@@ -304,15 +304,15 @@ def restart_supervisor_processes(aksara_path=".", web_workers=False):
                 "sudo supervisorctl status", cwd=aksara_path
             )
 
-        if web_workers and f"{bench_name}-web:" in supervisor_status:
-            group = f"{bench_name}-web:\t"
+        if web_workers and f"{aksara_name}-web:" in supervisor_status:
+            group = f"{aksara_name}-web:\t"
 
-        elif f"{bench_name}-workers:" in supervisor_status:
-            group = f"{bench_name}-workers: {bench_name}-web:"
+        elif f"{aksara_name}-workers:" in supervisor_status:
+            group = f"{aksara_name}-workers: {aksara_name}-web:"
 
         # backward compatibility
-        elif f"{bench_name}-processes:" in supervisor_status:
-            group = f"{bench_name}-processes:"
+        elif f"{aksara_name}-processes:" in supervisor_status:
+            group = f"{aksara_name}-processes:"
 
         # backward compatibility
         else:
@@ -328,13 +328,13 @@ def restart_supervisor_processes(aksara_path=".", web_workers=False):
 
 
 def restart_systemd_processes(aksara_path=".", web_workers=False):
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
     exec_cmd(
-        f"sudo systemctl stop -- $(systemctl show -p Requires {bench_name}.target | cut"
+        f"sudo systemctl stop -- $(systemctl show -p Requires {aksara_name}.target | cut"
         " -d= -f2)"
     )
     exec_cmd(
-        f"sudo systemctl start -- $(systemctl show -p Requires {bench_name}.target |"
+        f"sudo systemctl start -- $(systemctl show -p Requires {aksara_name}.target |"
         " cut -d= -f2)"
     )
 
@@ -533,11 +533,11 @@ def remove_backups_crontab(aksara_path="."):
 
     logger.log("removing backup cronjob")
 
-    bench_dir = os.path.abspath(aksara_path)
-    user = Aksara(bench_dir).conf.get("logica_user")
-    logfile = os.path.join(bench_dir, "logs", "backup.log")
+    aksara_dir = os.path.abspath(aksara_path)
+    user = Aksara(aksara_dir).conf.get("logica_user")
+    logfile = os.path.join(aksara_dir, "logs", "backup.log")
     system_crontab = CronTab(user=user)
-    backup_command = f"cd {bench_dir} && {sys.argv[0]} --verbose --site all backup"
+    backup_command = f"cd {aksara_dir} && {sys.argv[0]} --verbose --site all backup"
     job_command = f"{backup_command} >> {logfile} 2>&1"
 
     system_crontab.remove_all(command=job_command)

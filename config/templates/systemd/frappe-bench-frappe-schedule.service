@@ -1,5 +1,5 @@
 [Unit]
-Description="{{ aksara_name }}-frappe-schedule"
+Description="{{ aksara_name }}-logica-schedule"
 PartOf={{ aksara_name }}-workers.target
 
 [Service]

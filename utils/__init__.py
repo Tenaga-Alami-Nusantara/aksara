@@ -285,7 +285,7 @@ def log_line(data, stream):
     return sys.stdout.write(data)
 
 
-def get_bench_name(aksara_path):
+def get_aksara_name(aksara_path):
     return os.path.basename(os.path.abspath(aksara_path))
 
 

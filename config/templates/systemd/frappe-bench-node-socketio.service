@@ -1,5 +1,5 @@
 [Unit]
-After={{ aksara_name }}-frappe-web.service
+After={{ aksara_name }}-logica-web.service
 Description="{{ aksara_name }}-node-socketio"
 PartOf={{ aksara_name }}-web.target
 

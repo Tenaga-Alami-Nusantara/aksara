@@ -6,7 +6,7 @@ import os
 # imports - module imports
 import aksara
 from aksara.app import use_rq
-from aksara.utils import get_bench_name, which
+from aksara.utils import get_aksara_name, which
 from aksara.aksara import Aksara
 from aksara.config.common_site_config import (
     update_config,
@@ -29,7 +29,7 @@ def generate_supervisor_config(aksara_path, user=None, yes=False, skip_redis=Fal
 
     config = Aksara(aksara_path).conf
     template = aksara.config.env().get_template("supervisor.conf")
-    bench_dir = os.path.abspath(aksara_path)
+    aksara_dir = os.path.abspath(aksara_path)
 
     web_worker_count = config.get(
         "gunicorn_workers", get_gunicorn_workers()["gunicorn_workers"]
@@ -40,23 +40,27 @@ def generate_supervisor_config(aksara_path, user=None, yes=False, skip_redis=Fal
 
     config = template.render(
         **{
-            "bench_dir": bench_dir,
-            "sites_dir": os.path.join(bench_dir, "sites"),
+            "aksara_dir": aksara_dir,
+            "sites_dir": os.path.join(aksara_dir, "sites"),
             "user": user,
             "use_rq": use_rq(aksara_path),
             "http_timeout": config.get("http_timeout", 120),
             "redis_server": which("redis-server"),
             "node": which("node") or which("nodejs"),
-            "redis_cache_config": os.path.join(bench_dir, "config", "redis_cache.conf"),
-            "redis_socketio_config": os.path.join(
-                bench_dir, "config", "redis_socketio.conf"
+            "redis_cache_config": os.path.join(
+                aksara_dir, "config", "redis_cache.conf"
             ),
-            "redis_queue_config": os.path.join(bench_dir, "config", "redis_queue.conf"),
+            "redis_socketio_config": os.path.join(
+                aksara_dir, "config", "redis_socketio.conf"
+            ),
+            "redis_queue_config": os.path.join(
+                aksara_dir, "config", "redis_queue.conf"
+            ),
             "webserver_port": config.get("webserver_port", 8000),
             "gunicorn_workers": web_worker_count,
             "gunicorn_max_requests": max_requests,
             "gunicorn_max_requests_jitter": compute_max_requests_jitter(max_requests),
-            "bench_name": get_bench_name(aksara_path),
+            "aksara_name": get_aksara_name(aksara_path),
             "background_workers": config.get("background_workers") or 1,
             "bench_cmd": which("aksara"),
             "skip_redis": skip_redis,

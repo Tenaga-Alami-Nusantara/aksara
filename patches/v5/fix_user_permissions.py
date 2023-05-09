@@ -7,7 +7,7 @@ import subprocess
 from aksara.cli import change_uid_msg
 from aksara.config.production_setup import get_supervisor_confdir, is_centos7, service
 from aksara.config.common_site_config import get_config
-from aksara.utils import exec_cmd, get_bench_name, get_cmd_output
+from aksara.utils import exec_cmd, get_aksara_name, get_cmd_output
 
 
 def is_sudoers_set():
@@ -32,16 +32,16 @@ def is_sudoers_set():
 def is_production_set(aksara_path):
     """Check if production is set for current bench"""
     production_setup = False
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
 
     supervisor_conf_extn = "ini" if is_centos7() else "conf"
-    supervisor_conf_file_name = f"{bench_name}.{supervisor_conf_extn}"
+    supervisor_conf_file_name = f"{aksara_name}.{supervisor_conf_extn}"
     supervisor_conf = os.path.join(get_supervisor_confdir(), supervisor_conf_file_name)
 
     if os.path.exists(supervisor_conf):
         production_setup = production_setup or True
 
-    nginx_conf = f"/etc/nginx/conf.d/{bench_name}.conf"
+    nginx_conf = f"/etc/nginx/conf.d/{aksara_name}.conf"
 
     if os.path.exists(nginx_conf):
         production_setup = production_setup or True

@@ -23,7 +23,7 @@ def setup_config(aksara_path):
     bench_config = get_config(aksara_path)
     bench_config.update(default_config)
     bench_config.update(get_gunicorn_workers())
-    update_config_for_frappe(bench_config, aksara_path)
+    update_config_for_logica(bench_config, aksara_path)
 
     put_config(bench_config, aksara_path)
 
@@ -78,7 +78,7 @@ def get_default_max_requests(worker_count: int):
     return DEFAULT_MAX_REQUESTS
 
 
-def update_config_for_frappe(config, aksara_path):
+def update_config_for_logica(config, aksara_path):
     ports = make_ports(aksara_path)
 
     for key in ("redis_cache", "redis_queue", "redis_socketio"):

@@ -11,7 +11,7 @@ import click
 import aksara
 import aksara.config
 from aksara.aksara import Aksara
-from aksara.utils import get_bench_name
+from aksara.utils import get_aksara_name
 
 
 def make_nginx_conf(aksara_path, yes=False, logging=None, log_format=None):
@@ -29,7 +29,7 @@ def make_nginx_conf(aksara_path, yes=False, logging=None, log_format=None):
 
     config = Aksara(aksara_path).conf
     sites = prepare_sites(config, aksara_path)
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
 
     allow_rate_limiting = config.get("allow_rate_limiting", False)
 
@@ -39,7 +39,7 @@ def make_nginx_conf(aksara_path, yes=False, logging=None, log_format=None):
         "sites": sites,
         "webserver_port": config.get("webserver_port"),
         "socketio_port": config.get("socketio_port"),
-        "bench_name": bench_name,
+        "aksara_name": aksara_name,
         "error_pages": get_error_pages(),
         "allow_rate_limiting": allow_rate_limiting,
         # for nginx map variable
@@ -57,7 +57,7 @@ def make_nginx_conf(aksara_path, yes=False, logging=None, log_format=None):
     if allow_rate_limiting:
         template_vars.update(
             {
-                "bench_name_hash": hashlib.sha256(bench_name).hexdigest()[:16],
+                "aksara_name_hash": hashlib.sha256(aksara_name).hexdigest()[:16],
                 "limit_conn_shared_memory": get_limit_conn_shared_memory(),
             }
         )
@@ -77,7 +77,7 @@ def make_bench_manager_nginx_conf(aksara_path, yes=False, port=23624, domain=Non
 
     config = Aksara(aksara_path).conf
     site_config = get_site_config(domain, aksara_path=aksara_path)
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
 
     template_vars = {
         "port": port,
@@ -87,7 +87,7 @@ def make_bench_manager_nginx_conf(aksara_path, yes=False, port=23624, domain=Non
         "http_timeout": config.get("http_timeout"),
         "webserver_port": config.get("webserver_port"),
         "socketio_port": config.get("socketio_port"),
-        "bench_name": bench_name,
+        "aksara_name": aksara_name,
         "error_pages": get_error_pages(),
         "ssl_certificate": site_config.get("ssl_certificate"),
         "ssl_certificate_key": site_config.get("ssl_certificate_key"),

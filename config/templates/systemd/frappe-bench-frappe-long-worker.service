@@ -1,5 +1,5 @@
 [Unit]
-Description="{{ aksara_name }}-frappe-short-worker %I"
+Description="{{ aksara_name }}-logica-short-worker %I"
 PartOf={{ aksara_name }}-workers.target
 
 [Service]

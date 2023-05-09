@@ -4,7 +4,7 @@
   become_user: root
   vars:
     bench_repo_path: "/Users/{{ ansible_user_id }}/.bench"
-    aksara_path: "/Users/{{ ansible_user_id }}/frappe-bench"
+    aksara_path: "/Users/{{ ansible_user_id }}/logica-bench"
   tasks:
     # install pre-requisites
     - name: install prequisites
@@ -28,7 +28,7 @@
       vars:
         mysql_conf_tpl: roles/mariadb/files/mariadb_config.cnf
 
-    # setup frappe-bench
+    # setup logica-bench
     - include_tasks: includes/setup_aksara.yml
 
     # setup development environment

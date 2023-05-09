@@ -13,7 +13,7 @@ from aksara.config.supervisor import (
 )
 from aksara.config.systemd import generate_systemd_config
 from aksara.aksara import Aksara
-from aksara.utils import exec_cmd, which, get_bench_name, get_cmd_output, log
+from aksara.utils import exec_cmd, which, get_aksara_name, get_cmd_output, log
 from aksara.utils.system import fix_prod_setup_perms
 from aksara.exceptions import CommandFailedError
 
@@ -58,14 +58,14 @@ def setup_production(user, aksara_path=".", yes=False):
     fix_prod_setup_perms(aksara_path, logica_user=user)
     remove_default_nginx_configs()
 
-    bench_name = get_bench_name(aksara_path)
-    nginx_conf = f"/etc/nginx/conf.d/{bench_name}.conf"
+    aksara_name = get_aksara_name(aksara_path)
+    nginx_conf = f"/etc/nginx/conf.d/{aksara_name}.conf"
 
     print("Setting Up symlinks and reloading services...")
     if conf.get("restart_supervisor_on_update"):
         supervisor_conf_extn = "ini" if is_centos7() else "conf"
         supervisor_conf = os.path.join(
-            get_supervisor_confdir(), f"{bench_name}.{supervisor_conf_extn}"
+            get_supervisor_confdir(), f"{aksara_name}.{supervisor_conf_extn}"
         )
 
         # Check if symlink exists, If not then create it.
@@ -91,13 +91,13 @@ def setup_production(user, aksara_path=".", yes=False):
 
 
 def disable_production(aksara_path="."):
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
     conf = Aksara(aksara_path).conf
 
     # supervisorctl
     supervisor_conf_extn = "ini" if is_centos7() else "conf"
     supervisor_conf = os.path.join(
-        get_supervisor_confdir(), f"{bench_name}.{supervisor_conf_extn}"
+        get_supervisor_confdir(), f"{aksara_name}.{supervisor_conf_extn}"
     )
 
     if os.path.islink(supervisor_conf):
@@ -107,7 +107,7 @@ def disable_production(aksara_path="."):
         reload_supervisor()
 
     # nginx
-    nginx_conf = f"/etc/nginx/conf.d/{bench_name}.conf"
+    nginx_conf = f"/etc/nginx/conf.d/{aksara_name}.conf"
 
     if os.path.islink(nginx_conf):
         os.unlink(nginx_conf)

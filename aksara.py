@@ -194,7 +194,7 @@ class BenchApps(MutableSequence):
             required = []
         if self.apps and not os.path.exists(self.states_path):
             # idx according to apps listed in apps.txt (backwards compatibility)
-            # Keeping frappe as the first app.
+            # Keeping logica as the first app.
             if "logica" in self.apps:
                 self.apps.remove("logica")
                 self.apps.insert(0, "logica")
@@ -348,7 +348,7 @@ class BenchSetup(Base):
         """Setup env folder
         - create env if not exists
         - upgrade env pip
-        - install frappe python dependencies
+        - install logica python dependencies
         """
         import aksara.cli
         import click
@@ -357,7 +357,7 @@ class BenchSetup(Base):
 
         click.secho("Setting Up Environment", fg="yellow")
 
-        frappe = os.path.join(self.aksara.name, "apps", "logica")
+        logica = os.path.join(self.aksara.name, "apps", "logica")
         quiet_flag = "" if verbose else "--quiet"
 
         if not os.path.exists(self.aksara.python):
@@ -366,9 +366,9 @@ class BenchSetup(Base):
 
         self.pip()
 
-        if os.path.exists(frappe):
+        if os.path.exists(logica):
             self.run(
-                f"{self.aksara.python} -m pip install {quiet_flag} --upgrade -e {frappe}",
+                f"{self.aksara.python} -m pip install {quiet_flag} --upgrade -e {logica}",
                 cwd=self.aksara.name,
             )
 
@@ -424,9 +424,9 @@ class BenchSetup(Base):
 
         from crontab import CronTab
 
-        bench_dir = os.path.abspath(self.aksara.name)
+        aksara_dir = os.path.abspath(self.aksara.name)
         user = self.aksara.conf.get("logica_user")
-        logfile = os.path.join(bench_dir, "logs", "backup.log")
+        logfile = os.path.join(aksara_dir, "logs", "backup.log")
         system_crontab = CronTab(user=user)
         backup_command = f"cd {bench_dir} && {sys.argv[0]} --verbose --site all backup"
         job_command = f"{backup_command} >> {logfile} 2>&1"

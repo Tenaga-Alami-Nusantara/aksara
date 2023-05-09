@@ -15,7 +15,7 @@ from aksara.config.common_site_config import (
     get_default_max_requests,
     compute_max_requests_jitter,
 )
-from aksara.utils import exec_cmd, which, get_bench_name
+from aksara.utils import exec_cmd, which, get_aksara_name
 
 
 def generate_systemd_config(
@@ -31,12 +31,12 @@ def generate_systemd_config(
 
     config = Aksara(aksara_path).conf
 
-    bench_dir = os.path.abspath(aksara_path)
-    bench_name = get_bench_name(aksara_path)
+    aksara_dir = os.path.abspath(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
 
     if stop:
         exec_cmd(
-            f"sudo systemctl stop -- $(systemctl show -p Requires {bench_name}.target | cut -d= -f2)"
+            f"sudo systemctl stop -- $(systemctl show -p Requires {aksara_name}.target | cut -d= -f2)"
         )
         return
 
@@ -52,24 +52,24 @@ def generate_systemd_config(
     background_workers = []
     for i in range(number_of_workers):
         background_workers.append(
-            get_bench_name(aksara_path)
-            + "-frappe-default-worker@"
+            get_aksara_name(aksara_path)
+            + "-logica-default-worker@"
             + str(i + 1)
             + ".service"
         )
 
     for i in range(number_of_workers):
         background_workers.append(
-            get_bench_name(aksara_path)
-            + "-frappe-short-worker@"
+            get_aksara_name(aksara_path)
+            + "-logica-short-worker@"
             + str(i + 1)
             + ".service"
         )
 
     for i in range(number_of_workers):
         background_workers.append(
-            get_bench_name(aksara_path)
-            + "-frappe-long-worker@"
+            get_aksara_name(aksara_path)
+            + "-logica-long-worker@"
             + str(i + 1)
             + ".service"
         )
@@ -82,23 +82,23 @@ def generate_systemd_config(
     )
 
     bench_info = {
-        "bench_dir": bench_dir,
-        "sites_dir": os.path.join(bench_dir, "sites"),
+        "aksara_dir": aksara_dir,
+        "sites_dir": os.path.join(aksara_dir, "sites"),
         "user": user,
         "use_rq": use_rq(aksara_path),
         "http_timeout": config.get("http_timeout", 120),
         "redis_server": which("redis-server"),
         "node": which("node") or which("nodejs"),
-        "redis_cache_config": os.path.join(bench_dir, "config", "redis_cache.conf"),
+        "redis_cache_config": os.path.join(aksara_dir, "config", "redis_cache.conf"),
         "redis_socketio_config": os.path.join(
-            bench_dir, "config", "redis_socketio.conf"
+            aksara_dir, "config", "redis_socketio.conf"
         ),
-        "redis_queue_config": os.path.join(bench_dir, "config", "redis_queue.conf"),
+        "redis_queue_config": os.path.join(aksara_dir, "config", "redis_queue.conf"),
         "webserver_port": config.get("webserver_port", 8000),
         "gunicorn_workers": web_worker_count,
         "gunicorn_max_requests": max_requests,
         "gunicorn_max_requests_jitter": compute_max_requests_jitter(max_requests),
-        "bench_name": get_bench_name(aksara_path),
+        "aksara_name": get_aksara_name(aksara_path),
         "worker_target_wants": " ".join(background_workers),
         "bench_cmd": which("aksara"),
     }
@@ -126,10 +126,10 @@ def setup_systemd_directory(aksara_path):
 
 def setup_main_config(bench_info, aksara_path):
     # Main config
-    bench_template = aksara.config.env().get_template("systemd/frappe-aksara.target")
+    bench_template = aksara.config.env().get_template("systemd/logica-aksara.target")
     bench_config = bench_template.render(**bench_info)
     bench_config_path = os.path.join(
-        aksara_path, "config", "systemd", bench_info.get("bench_name") + ".target"
+        aksara_path, "config", "systemd", bench_info.get("aksara_name") + ".target"
     )
 
     with open(bench_config_path, "w") as f:
@@ -139,19 +139,19 @@ def setup_main_config(bench_info, aksara_path):
 def setup_workers_config(bench_info, aksara_path):
     # Worker Group
     bench_workers_target_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-workers.target"
+        "systemd/logica-bench-workers.target"
     )
     bench_default_worker_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-frappe-default-worker.service"
+        "systemd/logica-bench-logica-default-worker.service"
     )
     bench_short_worker_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-frappe-short-worker.service"
+        "systemd/logica-bench-logica-short-worker.service"
     )
     bench_long_worker_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-frappe-long-worker.service"
+        "systemd/logica-bench-logica-long-worker.service"
     )
     bench_schedule_worker_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-frappe-schedule.service"
+        "systemd/logica-bench-logica-schedule.service"
     )
 
     bench_workers_target_config = bench_workers_target_template.render(**bench_info)
@@ -164,31 +164,31 @@ def setup_workers_config(bench_info, aksara_path):
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-workers.target",
+        bench_info.get("aksara_name") + "-workers.target",
     )
     bench_default_worker_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-frappe-default-worker@.service",
+        bench_info.get("aksara_name") + "-logica-default-worker@.service",
     )
     bench_short_worker_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-frappe-short-worker@.service",
+        bench_info.get("aksara_name") + "-logica-short-worker@.service",
     )
     bench_long_worker_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-frappe-long-worker@.service",
+        bench_info.get("aksara_name") + "-logica-long-worker@.service",
     )
     bench_schedule_worker_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-frappe-schedule.service",
+        bench_info.get("aksara_name") + "-logica-schedule.service",
     )
 
     with open(bench_workers_target_config_path, "w") as f:
@@ -210,13 +210,13 @@ def setup_workers_config(bench_info, aksara_path):
 def setup_web_config(bench_info, aksara_path):
     # Web Group
     bench_web_target_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-web.target"
+        "systemd/logica-bench-web.target"
     )
     bench_web_service_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-frappe-web.service"
+        "systemd/logica-bench-logica-web.service"
     )
     bench_node_socketio_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-node-socketio.service"
+        "systemd/logica-bench-node-socketio.service"
     )
 
     bench_web_target_config = bench_web_target_template.render(**bench_info)
@@ -224,19 +224,19 @@ def setup_web_config(bench_info, aksara_path):
     bench_node_socketio_config = bench_node_socketio_template.render(**bench_info)
 
     bench_web_target_config_path = os.path.join(
-        aksara_path, "config", "systemd", bench_info.get("bench_name") + "-web.target"
+        aksara_path, "config", "systemd", bench_info.get("aksara_name") + "-web.target"
     )
     bench_web_service_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-frappe-web.service",
+        bench_info.get("aksara_name") + "-logica-web.service",
     )
     bench_node_socketio_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-node-socketio.service",
+        bench_info.get("aksara_name") + "-node-socketio.service",
     )
 
     with open(bench_web_target_config_path, "w") as f:
@@ -252,16 +252,16 @@ def setup_web_config(bench_info, aksara_path):
 def setup_redis_config(bench_info, aksara_path):
     # Redis Group
     bench_redis_target_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-redis.target"
+        "systemd/logica-bench-redis.target"
     )
     bench_redis_cache_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-redis-cache.service"
+        "systemd/logica-bench-redis-cache.service"
     )
     bench_redis_queue_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-redis-queue.service"
+        "systemd/logica-bench-redis-queue.service"
     )
     bench_redis_socketio_template = aksara.config.env().get_template(
-        "systemd/frappe-bench-redis-socketio.service"
+        "systemd/logica-bench-redis-socketio.service"
     )
 
     bench_redis_target_config = bench_redis_target_template.render(**bench_info)
@@ -273,25 +273,25 @@ def setup_redis_config(bench_info, aksara_path):
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-redis.target",
+        bench_info.get("aksara_name") + "-redis.target",
     )
     bench_redis_cache_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-redis-cache.service",
+        bench_info.get("aksara_name") + "-redis-cache.service",
     )
     bench_redis_queue_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-redis-queue.service",
+        bench_info.get("aksara_name") + "-redis-queue.service",
     )
     bench_redis_socketio_config_path = os.path.join(
         aksara_path,
         "config",
         "systemd",
-        bench_info.get("bench_name") + "-redis-socketio.service",
+        bench_info.get("aksara_name") + "-redis-socketio.service",
     )
 
     with open(bench_redis_target_config_path, "w") as f:
@@ -308,10 +308,10 @@ def setup_redis_config(bench_info, aksara_path):
 
 
 def _create_symlinks(aksara_path):
-    bench_dir = os.path.abspath(aksara_path)
+    aksara_dir = os.path.abspath(aksara_path)
     etc_systemd_system = os.path.join("/", "etc", "systemd", "system")
-    config_path = os.path.join(bench_dir, "config", "systemd")
-    unit_files = get_unit_files(bench_dir)
+    config_path = os.path.join(aksara_dir, "config", "systemd")
+    unit_files = get_unit_files(aksara_dir)
     for unit_file in unit_files:
         filename = "".join(unit_file)
         exec_cmd(
@@ -321,29 +321,29 @@ def _create_symlinks(aksara_path):
 
 
 def _delete_symlinks(aksara_path):
-    bench_dir = os.path.abspath(aksara_path)
+    aksara_dir = os.path.abspath(aksara_path)
     etc_systemd_system = os.path.join("/", "etc", "systemd", "system")
-    unit_files = get_unit_files(bench_dir)
+    unit_files = get_unit_files(aksara_dir)
     for unit_file in unit_files:
         exec_cmd(f'sudo rm {etc_systemd_system}/{"".join(unit_file)}')
     exec_cmd("sudo systemctl daemon-reload")
 
 
 def get_unit_files(aksara_path):
-    bench_name = get_bench_name(aksara_path)
+    aksara_name = get_aksara_name(aksara_path)
     unit_files = [
-        [bench_name, ".target"],
-        [bench_name + "-workers", ".target"],
-        [bench_name + "-web", ".target"],
-        [bench_name + "-redis", ".target"],
-        [bench_name + "-frappe-default-worker@", ".service"],
-        [bench_name + "-frappe-short-worker@", ".service"],
-        [bench_name + "-frappe-long-worker@", ".service"],
-        [bench_name + "-frappe-schedule", ".service"],
-        [bench_name + "-frappe-web", ".service"],
-        [bench_name + "-node-socketio", ".service"],
-        [bench_name + "-redis-cache", ".service"],
-        [bench_name + "-redis-queue", ".service"],
-        [bench_name + "-redis-socketio", ".service"],
+        [aksara_name, ".target"],
+        [aksara_name + "-workers", ".target"],
+        [aksara_name + "-web", ".target"],
+        [aksara_name + "-redis", ".target"],
+        [aksara_name + "-logica-default-worker@", ".service"],
+        [aksara_name + "-logica-short-worker@", ".service"],
+        [aksara_name + "-logica-long-worker@", ".service"],
+        [aksara_name + "-logica-schedule", ".service"],
+        [aksara_name + "-logica-web", ".service"],
+        [aksara_name + "-node-socketio", ".service"],
+        [aksara_name + "-redis-cache", ".service"],
+        [aksara_name + "-redis-queue", ".service"],
+        [aksara_name + "-redis-socketio", ".service"],
     ]
     return unit_files

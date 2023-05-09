@@ -29,8 +29,8 @@ class TestBenchBase(unittest.TestCase):
         self.benches = []
 
     def tearDown(self):
-        for bench_name in self.benches:
-            aksara_path = os.path.join(self.benches_path, bench_name)
+        for aksara_name in self.benches:
+            aksara_path = os.path.join(self.benches_path, aksara_name)
             aksara = Aksara(aksara_path)
             mariadb_password = (
                 "travis"
@@ -54,32 +54,32 @@ class TestBenchBase(unittest.TestCase):
                     )
                 shutil.rmtree(aksara_path, ignore_errors=True)
 
-    def assert_folders(self, bench_name):
+    def assert_folders(self, aksara_name):
         for folder in paths_in_bench:
-            self.assert_exists(bench_name, folder)
-        self.assert_exists(bench_name, "apps", "logica")
+            self.assert_exists(aksara_name, folder)
+        self.assert_exists(aksara_name, "apps", "logica")
 
-    def assert_virtual_env(self, bench_name):
-        aksara_path = os.path.abspath(bench_name)
+    def assert_virtual_env(self, aksara_name):
+        aksara_path = os.path.abspath(aksara_name)
         python_path = os.path.abspath(os.path.join(aksara_path, "env", "bin", "python"))
         self.assertTrue(python_path.startswith(aksara_path))
         for subdir in ("bin", "lib", "share"):
-            self.assert_exists(bench_name, "env", subdir)
+            self.assert_exists(aksara_name, "env", subdir)
 
-    def assert_config(self, bench_name):
+    def assert_config(self, aksara_name):
         for config, search_key in (
             ("redis_queue.conf", "redis_queue.rdb"),
             ("redis_socketio.conf", "redis_socketio.rdb"),
             ("redis_cache.conf", "redis_cache.rdb"),
         ):
-            self.assert_exists(bench_name, "config", config)
+            self.assert_exists(aksara_name, "config", config)
 
-            with open(os.path.join(bench_name, "config", config)) as f:
+            with open(os.path.join(aksara_name, "config", config)) as f:
                 self.assertTrue(search_key in f.read())
 
-    def assert_common_site_config(self, bench_name, expected_config):
+    def assert_common_site_config(self, aksara_name, expected_config):
         common_site_config_path = os.path.join(
-            self.benches_path, bench_name, "sites", "common_site_config.json"
+            self.benches_path, aksara_name, "sites", "common_site_config.json"
         )
         self.assertTrue(os.path.exists(common_site_config_path))
 
@@ -92,16 +92,16 @@ class TestBenchBase(unittest.TestCase):
     def assert_exists(self, *args):
         self.assertTrue(os.path.exists(os.path.join(*args)))
 
-    def new_site(self, site_name, bench_name):
+    def new_site(self, site_name, aksara_name):
         new_site_cmd = ["aksara", "new-site", site_name, "--admin-password", "admin"]
 
         if os.environ.get("CI"):
             new_site_cmd.extend(["--mariadb-root-password", "travis"])
 
-        subprocess.call(new_site_cmd, cwd=os.path.join(self.benches_path, bench_name))
+        subprocess.call(new_site_cmd, cwd=os.path.join(self.benches_path, aksara_name))
 
-    def init_bench(self, bench_name, **kwargs):
-        self.benches.append(bench_name)
+    def init_bench(self, aksara_name, **kwargs):
+        self.benches.append(aksara_name)
         frappe_tmp_path = "/tmp/frappe"
 
         if not os.path.exists(frappe_tmp_path):
@@ -118,11 +118,11 @@ class TestBenchBase(unittest.TestCase):
             )
         )
 
-        if not os.path.exists(os.path.join(self.benches_path, bench_name)):
-            init(bench_name, **kwargs)
+        if not os.path.exists(os.path.join(self.benches_path, aksara_name)):
+            init(aksara_name, **kwargs)
             exec_cmd(
                 "git remote set-url upstream https://github.com/frappe/frappe",
-                cwd=os.path.join(self.benches_path, bench_name, "apps", "logica"),
+                cwd=os.path.join(self.benches_path, aksara_name, "apps", "logica"),
             )
 
     def file_exists(self, path):

@@ -216,7 +216,7 @@ def get_logica_help(aksara_path="."):
     sites_path = os.path.join(aksara_path, "sites")
     try:
         out = get_cmd_output(
-            f"{python} -m logica.utils.bench_helper get-frappe-help", cwd=sites_path
+            f"{python} -m logica.utils.bench_helper get-logica-help", cwd=sites_path
         )
         return "\n\nFramework commands:\n" + out.split("Commands:")[1]
     except Exception:
