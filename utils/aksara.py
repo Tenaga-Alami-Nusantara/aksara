@@ -320,7 +320,7 @@ def restart_supervisor_processes(aksara_path=".", web_workers=False):
             sudo = "sudo "
 
         if group == "logica:":
-            log("restarting supervisor failed. Use bench restart to retry.", level=3)
+            log("restarting supervisor failed. Use aksara restart to retry.", level=3)
         else:
             aksara.run(f"{sudo}supervisorctl restart {group}")
         # failure = aksara.run(f"{sudo}supervisorctl restart {group}", _raise=False)
@@ -517,7 +517,7 @@ def clone_apps_from(aksara_path, clone_from, update_app=True):
                 ["git", "pull", "--rebase", remote, branch], cwd=app_path
             )
 
-        install_app(app, aksara_path, restart_bench=False)
+        install_app(app, aksara_path, restart_aksara=False)
 
     with open(os.path.join(clone_from, "sites", "apps.txt")) as f:
         apps = f.read().splitlines()

@@ -233,7 +233,7 @@ class App(AppMeta):
         skip_assets=False,
         verbose=False,
         resolved=False,
-        restart_bench=True,
+        restart_aksara=True,
         ignore_resolution=False,
     ):
         import aksara.cli
@@ -253,7 +253,7 @@ class App(AppMeta):
             aksara_path=self.aksara.name,
             verbose=verbose,
             skip_assets=skip_assets,
-            restart_bench=restart_bench,
+            restart_aksara=restart_aksara,
             resolution=self.local_resolution,
         )
 
@@ -377,7 +377,7 @@ def get_app(
     repo_name = app.repo
     branch = app.tag
     bench_setup = False
-    restart_bench = not init_bench
+    restart_aksara = not init_bench
     logica_path, logica_branch = None, None
 
     if resolve_deps:
@@ -457,7 +457,7 @@ def get_app(
         or click.confirm("Do you want to reinstall the existing application?")
     ):
         app.install(
-            verbose=verbose, skip_assets=skip_assets, restart_bench=restart_bench
+            verbose=verbose, skip_assets=skip_assets, restart_aksara=restart_aksara
         )
 
 
@@ -569,7 +569,7 @@ def install_app(
     aksara_path=".",
     verbose=False,
     no_cache=False,
-    restart_bench=True,
+    restart_aksara=True,
     skip_assets=False,
     resolution=UNSET_ARG,
 ):
@@ -609,7 +609,7 @@ def install_app(
     if not skip_assets:
         build_assets(aksara_path=aksara_path, app=app)
 
-    if restart_bench:
+    if restart_aksara:
         aksara.reload()
 
 

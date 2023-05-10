@@ -454,7 +454,7 @@ class BenchSetup(Base):
         for app in apps:
             path_to_app = os.path.join(self.aksara.name, "apps", app)
             app = App(path_to_app, bench=self.aksara, to_clone=False).install(
-                skip_assets=True, restart_bench=False, ignore_resolution=True
+                skip_assets=True, restart_aksara=False, ignore_resolution=True
             )
 
     def python(self, apps=None):
